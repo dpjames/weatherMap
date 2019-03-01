@@ -1,4 +1,8 @@
 let DAY = 0;
+let peaksLayer = initPeaksLayer();
+let climbLayer = createClimbLayer();
+let baseLayer = createTopoLayer();
+let weatherLayer = createWeatherLayer();
 function getColorForDescription(desc){
    desc = desc.toLowerCase()
    if(desc.indexOf("snow") > -1){
@@ -18,19 +22,30 @@ function getColorForDescription(desc){
 function weatherStyle(f) {
    const times = f.getProperties().periods;
    const weatherColor = getColorForDescription(times[DAY].shortForecast);
+   return undefined;
    return new ol.style.Style({
       stroke : new ol.style.Stroke({color : '#000', width:1}),
       fill : new ol.style.Fill({color : weatherColor}),
    });
 }
+function getIntersectingDescription(f){
+   const c = f.getGeometry().getCoordinates();
+   const w = weatherLayer.getSource().getClosestFeatureToCoordinate(c); 
+   return w.getProperties().periods[DAY].shortForecast 
+}
+let staticClimbStyle = new ol.style.Style({
+   image : new ol.style.Circle({
+      fill : new ol.style.Fill({color : "blue"}),
+      stroke : new ol.style.Stroke({color : "black", width : "2"}),
+      radius : 8
+   })
+});
+
 function climbStyle(f){
-   return new ol.style.Style({
-      image : new ol.style.Circle({
-         fill : new ol.style.Fill({color : "cyan"}),
-         stroke : new ol.style.Stroke({color : "black", width : "2"}),
-         radius : 8
-      })
-   });
+   let desc = getIntersectingDescription(f);
+   staticClimbStyle.getImage().getFill().setColor(getColorForDescription(desc));
+   staticClimbStyle.setImage(staticClimbStyle.getImage().clone());
+   return staticClimbStyle
 }
 function createClimbLayer(){
    const src = new ol.source.Vector({
@@ -40,7 +55,7 @@ function createClimbLayer(){
    const climbLayer = new ol.layer.Vector({
       title:"climbs",
       source:src,
-      style : climbStyle()
+      style : climbStyle
    });
    return climbLayer;
 }
@@ -73,9 +88,6 @@ function createTopoLayer(){
 }
 function initMap(){
    const mapel = document.getElementById("map");
-   const weatherLayer = createWeatherLayer();
-   const climbLayer = createClimbLayer();
-   const baseLayer = createTopoLayer();
    mapel.innerHTML = "";
    const layers = [
       baseLayer,
@@ -120,7 +132,8 @@ function moveDate(delta){
    DAY+=delta;
    DAY = DAY < 0 ? 0 : DAY;
    DAY = DAY > 13 ? 13 : DAY;
-   getLayerByName(map, "weather").getSource().refresh()
+   weatherLayer.getSource().refresh()
+   climbLayer.getSource().refresh()
 }
 
 

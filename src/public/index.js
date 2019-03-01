@@ -2,13 +2,13 @@ let DAY = 0;
 function getColorForDescription(desc){
    desc = desc.toLowerCase()
    if(desc.indexOf("snow") > -1){
-      return "blue";
+      return "rgba(0,0,255,.5)";
    } else if(desc.indexOf("rain") > -1){
-      return "green";
+      return "rgba(0,255,0,.5)";
    } else if(desc.indexOf("sun") > -1){
-      return "yellow";
+      return "rgba(255,255,0,.5)";
    } else if(desc.indexOf("cloud") > -1){
-      return "gray";
+      return "rgba(100,100,100,.5)";
    } else if(desc.indexOf("clear") > -1){
       return "rgba(0,0,0,0)";
    }
@@ -22,6 +22,27 @@ function weatherStyle(f) {
       stroke : new ol.style.Stroke({color : '#000', width:1}),
       fill : new ol.style.Fill({color : weatherColor}),
    });
+}
+function climbStyle(f){
+   return new ol.style.Style({
+      image : new ol.style.Circle({
+         fill : new ol.style.Fill({color : "cyan"}),
+         stroke : new ol.style.Stroke({color : "black", width : "2"}),
+         radius : 8
+      })
+   });
+}
+function createClimbLayer(){
+   const src = new ol.source.Vector({
+      url:"/climbs",
+      format: new ol.format.GeoJSON(),
+   });
+   const climbLayer = new ol.layer.Vector({
+      title:"climbs",
+      source:src,
+      style : climbStyle()
+   });
+   return climbLayer;
 }
 function createWeatherLayer(){
    const src = new ol.source.Vector({
@@ -53,11 +74,14 @@ function createTopoLayer(){
 function initMap(){
    const mapel = document.getElementById("map");
    const weatherLayer = createWeatherLayer();
+   const climbLayer = createClimbLayer();
+   const baseLayer = createTopoLayer();
    mapel.innerHTML = "";
    const layers = [
-      createTopoLayer(),
+      baseLayer,
       weatherLayer,
-      initPeaksLayer()
+      climbLayer
+      //initPeaksLayer()
    ];
    const view = new ol.View({
       center : ol.proj.fromLonLat([-122.44, 40.25]),
@@ -69,7 +93,7 @@ function initMap(){
       view:view,
    });
    mapel.map = map;
-   setTimeout(()=>scaleLayer(weatherLayer.getSource(), 15), 1000);
+   setTimeout(()=>scaleLayer(weatherLayer.getSource(), 12), 3000);
 
 }
 function scaleLayer(src, factor){

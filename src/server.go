@@ -6,7 +6,7 @@ import (
    "log"
    "io/ioutil"
 )
-const PORT string = ":8080";
+const PORT string = ":8000";
 func serveWeather(w http.ResponseWriter, r *http.Request){
    fmt.Println("weather");
    data,_:=ioutil.ReadFile("outfile.geojson");

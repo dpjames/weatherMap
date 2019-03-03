@@ -64,6 +64,7 @@ function createClimbLayer(){
             +extent.join(",")+",EPSG:3857";
       },
       format: new ol.format.GeoJSON(),
+      strategy: ol.loadingstrategy.bbox
    });
    const climbLayer = new ol.layer.Vector({
       title:"climbs",
@@ -74,8 +75,9 @@ function createClimbLayer(){
 }
 function createWeatherLayer(){
    const src = new ol.source.Vector({
-      url:"/weather",
+      url: "/weather",
       format: new ol.format.GeoJSON(),
+      strategy: ol.loadingstrategy.bbox
    });
    //maybe cluster
    const weatherlayer = new ol.layer.Vector({
@@ -109,7 +111,6 @@ function initMap(){
       baseLayer,
       weatherLayer,
       climbLayer,
-      peaksLayer
    ];
    const view = new ol.View({
       center : ol.proj.fromLonLat([-122.44, 40.25]),

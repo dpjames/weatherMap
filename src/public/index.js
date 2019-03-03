@@ -77,7 +77,6 @@ function createWeatherLayer(){
    const src = new ol.source.Vector({
       url: "/weather",
       format: new ol.format.GeoJSON(),
-      strategy: ol.loadingstrategy.bbox
    });
    //maybe cluster
    const weatherlayer = new ol.layer.Vector({

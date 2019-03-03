@@ -19,21 +19,28 @@ function getColorForDescription(desc){
       return "rgba(100,100,100,.5)";
    } else if(desc.indexOf("clear") > -1){
       return "rgba(0,0,0,0)";
+   } else if(desc.indexOf("loading") > -1){
+      return "rgba(0,0,0,1)";
    }
    console.log(desc);
    return "red";
 }
+let staticWeatherStyle = new ol.style.Style({
+      stroke : new ol.style.Stroke({color : '#000', width:1}),
+      fill : new ol.style.Fill({color : "red"}),
+   });
 function weatherStyle(f) {
    const times = f.getProperties().periods;
    const weatherColor = getColorForDescription(times[DAY].shortForecast);
-   return new ol.style.Style({
-      stroke : new ol.style.Stroke({color : '#000', width:1}),
-      fill : new ol.style.Fill({color : weatherColor}),
-   });
+   staticWeatherStyle.getFill().setColor(weatherColor);
+   return staticWeatherStyle;
 }
 function getIntersectingDescription(f){
    const c = f.getGeometry().getCoordinates();
    const w = weatherLayer.getSource().getClosestFeatureToCoordinate(c); 
+   if(w == null){
+      return "loading";
+   }
    return w.getProperties().periods[DAY].shortForecast 
 }
 let staticClimbStyle = new ol.style.Style({
@@ -114,8 +121,8 @@ function initMap(){
       view:view,
    });
    mapel.map = map;
-   setTimeout(()=>scaleLayer(weatherLayer.getSource(), 12), 3000);
-
+   //setTimeout(()=>scaleLayer(weatherLayer.getSource(), 12), 3000);
+   
 }
 function scaleLayer(src, factor){
    src.getFeatures().forEach(f => {

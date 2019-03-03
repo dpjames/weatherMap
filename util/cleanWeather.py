@@ -1,7 +1,7 @@
 import json
-fname = "weather"
+fname = "outfile.geojson"
 
-f = open("weather", "r")
+f = open(fname, "r")
 txt = ""
 for l in f:
     txt+=l
@@ -22,5 +22,5 @@ for f in weather['features']:
 
 weather['features'] = newFeats
 
-f = open("cleanWeather", "w+")
+f = open("weather.geojson", "w+")
 f.write(json.dumps(weather))

@@ -26,13 +26,19 @@ function getColorForDescription(desc){
    return "red";
 }
 let staticWeatherStyle = new ol.style.Style({
-      stroke : new ol.style.Stroke({color : '#000', width:1}),
-      fill : new ol.style.Fill({color : "red"}),
-   });
+   image : new ol.style.Circle({
+      fill : new ol.style.Fill({color : "blue"}),
+      stroke : new ol.style.Stroke({color : "black", width : "2"}),
+      radius : 15
+   })
+});
+
+
 function weatherStyle(f) {
-   const times = f.getProperties().periods;
-   const weatherColor = getColorForDescription(times[DAY].shortForecast);
-   staticWeatherStyle.getFill().setColor(weatherColor);
+   const props = f.getProperties();
+   const weatherColor = getColorForDescription(props['sfc' + DAY]);
+   staticWeatherStyle.getImage().getFill().setColor(weatherColor);
+   staticWeatherStyle.setImage(staticWeatherStyle.getImage().clone());
    return staticWeatherStyle;
 }
 function getIntersectingDescription(f){
@@ -41,7 +47,7 @@ function getIntersectingDescription(f){
    if(w == null){
       return "loading";
    }
-   return w.getProperties().periods[DAY].shortForecast 
+   return w.getProperties()['sfc' + DAY]
 }
 let staticClimbStyle = new ol.style.Style({
    image : new ol.style.Circle({
@@ -75,8 +81,12 @@ function createClimbLayer(){
 }
 function createWeatherLayer(){
    const src = new ol.source.Vector({
-      url: "/weather",
+      url:function(extent){
+         return "/geoserver/climbing/weather/wfs?service=WFS&version=1.1&typename=weather&request=GetFeature&outputFormat=application/json&srsname=EPSG:3857&bbox="
+            +extent.join(",")+",EPSG:3857";
+      },
       format: new ol.format.GeoJSON(),
+      strategy: ol.loadingstrategy.bbox
    });
    //maybe cluster
    const weatherlayer = new ol.layer.Vector({
@@ -149,13 +159,8 @@ function moveDate(delta){
    DAY+=delta;
    DAY = DAY < 0 ? 0 : DAY;
    DAY = DAY > 13 ? 13 : DAY;
-   const times = weatherLayer.getSource().getFeatures()[0].getProperties().periods;
-   daystr = days[(new Date(times[DAY].startTime)).getDay()]
-   if(times[DAY].isDaytime){
-      daystr += " DAY";
-   } else {
-      daystr += " NIGHT";
-   }
+   const times = weatherLayer.getSource().getFeatures()[0].getProperties();
+   daystr = times['name'+DAY];
    document.getElementById("curTimeDisplay").innerHTML = daystr
    document.getElementById("map").map.getLayers().forEach(l => l.get('title') != "OSM" ? l.getSource().refresh() : undefined);
 }

@@ -22,11 +22,15 @@ func serveClimbs(w http.ResponseWriter, r *http.Request){
    data,_:=ioutil.ReadFile("climbs.geojson");
    fmt.Fprint(w,string(data))
 }
+func serveLayer(w http.ResponseWriter, r *http.Request){
+   
+}
 func main() {
    fs := http.FileServer(http.Dir("public"))
    http.HandleFunc("/weather", serveWeather);
    http.HandleFunc("/peaks", servePeaks);
    http.HandleFunc("/climbs", serveClimbs);
+   http.HandleFunc("/layer", serveLayer);
    http.Handle("/", fs)
    fmt.Println("Listening...");
    err := http.ListenAndServe(PORT, nil)

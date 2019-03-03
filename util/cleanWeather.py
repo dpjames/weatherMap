@@ -14,10 +14,10 @@ for f in weather['features']:
     fp = f['properties']
     for i in range(len(fp['periods'])):
         cp = fp['periods'][i]
-        newF['properties']['isDaytime' + str(i)] = cp['isDaytime']
+        newF['properties']['isDay' + str(i)] = cp['isDaytime']
         newF['properties']['name' + str(i)] = cp['name']
-        newF['properties']['shortForecast' + str(i)] = cp['shortForecast']
-        newF['properties']['startTime' + str(i)] = cp['startTime']
+        newF['properties']['sfc' + str(i)] = cp['shortForecast']
+        newF['properties']['sTime' + str(i)] = cp['startTime']
     newFeats.append(newF);
 
 weather['features'] = newFeats

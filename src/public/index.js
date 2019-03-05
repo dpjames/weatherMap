@@ -3,6 +3,7 @@ let climbLayer = createClimbLayer();
 let baseLayer = createTopoLayer();
 let weatherLayer = createWeatherLayer();
 let peaksLayer = createPeaksLayer();
+let map = undefined;
 function getColorForDescription(desc){
    desc = desc.toLowerCase()
    if(desc.indexOf("snow") > -1 ||
@@ -82,6 +83,12 @@ function createClimbLayer(){
 function createWeatherLayer(){
    const src = new ol.source.Vector({
       url:function(extent){
+         bufferX = Math.abs(extent[0] - extent[2])/4;
+         bufferY = Math.abs(extent[1] - extent[3])/4;
+         extent[0]-=bufferX
+         extent[1]-=bufferY 
+         extent[2]+=bufferX
+         extent[3]+=bufferY 
          return "/geoserver/climbing/weather/wfs?service=WFS&version=1.1&typename=weather&request=GetFeature&outputFormat=application/json&srsname=EPSG:3857&bbox="
             +extent.join(",")+",EPSG:3857";
       },
@@ -125,13 +132,13 @@ function initMap(){
       center : ol.proj.fromLonLat([-122.44, 40.25]),
       zoom: 8
    });
-   let map = new ol.Map({
+    map = new ol.Map({
       target:"map",
       layers:layers,
       view:view,
    });
-   mapel.map = map;
    //setTimeout(()=>scaleLayer(weatherLayer.getSource(), 12), 3000);
+   //map.once('postrender', ()=>moveDate(-1));
    
 }
 function scaleLayer(src, factor){
@@ -155,14 +162,13 @@ function getLayerByName(map, lname){
 }
 const days = ["SUNDAY", "MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"];
 function moveDate(delta){
-   const map = document.getElementById("map").map;
    DAY+=delta;
    DAY = DAY < 0 ? 0 : DAY;
    DAY = DAY > 13 ? 13 : DAY;
    const times = weatherLayer.getSource().getFeatures()[0].getProperties();
    daystr = times['name'+DAY];
-   document.getElementById("curTimeDisplay").innerHTML = daystr
-   document.getElementById("map").map.getLayers().forEach(l => l.get('title') != "OSM" ? l.getSource().refresh() : undefined);
+   document.getElementById("curTimeDisplay").innerHTML = "Weather Forecast for " + daystr;
+   map.getLayers().forEach(l => l.get('title') != "OSM" ? l.getSource().refresh() : undefined);
 }
 
 
@@ -208,15 +214,18 @@ function createPeaksLayer(){
    });
    return peaksLayer;
 }
+function toggleOnOff(el){
+   const on = el.classList.contains("on");
+   el.classList.remove(on ? "on" : "off");
+   el.classList.add(on ? "off" : "on");
+   return on;
+}
 function toggleLayer(l, el){
-   const active = el.getAttribute("data-active");
-   el.setAttribute("data-active", active == "true" ? "false" : "true");
-   const map = document.getElementById("map").map;
-   active == "true" ? map.removeLayer(l) : map.addLayer(l);
+   let on = toggleOnOff(el);
+   on ? map.removeLayer(l) : map.addLayer(l);
 }
 function toggleWeather(el){
-   const active = el.getAttribute("data-active");
-   el.setAttribute("data-active", active == "true" ? "false" : "true");
-   active == "true" ? weatherLayer.setStyle(nostyle) : weatherLayer.setStyle(weatherStyle);
+   let on = toggleOnOff(el);
+   on ? weatherLayer.setStyle(nostyle) : weatherLayer.setStyle(weatherStyle);
 }
 window.onload = initMap;

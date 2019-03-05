@@ -8,11 +8,34 @@
 </head>
 <body>
    <script src="index.js"></script>
-   <div id="map"></div>
-   <button onclick="moveDate(1)">next 12hrs</button>
-   <button onclick="moveDate(-1)">prev 12hrs</button>
-   <button data-active="false" onclick="toggleLayer(peaksLayer, this)">toggle peaks layer</button>
-   <button data-active="true" onclick="toggleLayer(climbLayer, this)">toggle climb layer</button>
-   <button data-active="false" onclick="toggleWeather(this)"> toggle weather overlay </button>
-   <div id="curTimeDisplay">N/A</div>
+   <div id="mainContent">
+      <div id="toolBar">
+         <div class="button" onclick="moveDate(-1)">prev 12hrs</div>
+         <div class="button" onclick="moveDate(1)">next 12hrs</div>
+         <div class="button off" onclick="toggleLayer(peaksLayer, this)">toggle peaks layer</div>
+         <div class="button on"  onclick="toggleLayer(climbLayer, this)">toggle climb layer</div>
+         <div class="button off" onclick="toggleWeather(this)"> toggle weather overlay </div>
+      </div>
+      <div id="infoPanel">
+         <div id="curTimeDisplay">Weather Forecast for Nowish</div>
+         <div id="legend">
+            <div><div class="legendDot legendRain"></div> 
+               <div class="legendLabel">rain</div>     </div>
+            <div><div class="legendDot legendSnow"></div> 
+               <div class="legendLabel">snow</div>     </div>
+            <div><div class="legendDot legendClear"></div> 
+               <div class="legendLabel">clear</div>    </div>
+            <div><div class="legendDot legendSunny"></div> 
+               <div class="legendLabel">sunny</div>    </div>
+            <div><div class="legendDot legendCloudy"></div> 
+               <div class="legendLabel">cloudy</div>   </div>
+            <div><div class="legendDot legendLoading"></div> 
+               <div class="legendLabel">loading</div>  </div>
+            <div><div class="legendDot legendUnknown"></div> 
+               <div class="legendLabel">unknown (click for details)</div></div>
+         </div>
+         <div class="button" onclick="document.getElementById('legend').classList.toggle('hide')">toggle legend</div>
+      </div> 
+      <div id="map"></div>
+   </div>
 </body>
